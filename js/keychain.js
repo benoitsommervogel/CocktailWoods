@@ -20,14 +20,14 @@ class Character {
     this.life = 3
   }
   
-  set damage(power) {
+  damage(power) {
     var damageValue = Math.floor((diceroll + power - this.attributes['p']) / 2);
     if (damageValue > 0) {
       this.life =- damageValue;
     }
   }
 
-  get skillCheck(action_type, threshold, traitName) {
+  skillCheck(action_type, threshold, traitName) {
     return (Math.floor((diceroll + this.attributes[action_type]) / 2) >= threshold);
   }
 
