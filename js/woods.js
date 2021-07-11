@@ -1,67 +1,46 @@
+var monstersCaught = 0;
+var canvas = new CocktailCanvas(256, 176, "assets/images/background.png");
 
-var hero = new GameObject(0, 0)
-var monster = new GameObject(0, 0)
+
+var hero = new GameObject(256 / 2, 176 / 2)
+var monster = new GameObject(32 + (Math.random() * (256 - 64)), 32 + (Math.random() * (176 - 64)))
+var monster2 = new GameObject(32 + (Math.random() * (256 - 64)), 32 + (Math.random() * (176 - 64)))
 
 var sprite1 = new Sprite("assets/images/hero.png", hero)
 var sprite2 = new Sprite("assets/images/monster.png", monster)
+var sprite3 = new Sprite("assets/images/monster.png", monster2)
 
-var reset = function () {
-	hero.x = canvas.width / 2;
-	hero.y = canvas.height / 2;
+var moveHero = new Trigger(function(object, delta) {
+  if ("ArrowUp" in keysDown) { // Player holding up
+    object.y -= 50 * delta;
+  }
+  if ("ArrowDown" in keysDown) { // Player holding down
+    object.y += 50 * delta;
+  }
+  if ("ArrowLeft" in keysDown) { // Player holding left
+    object.x -= 50 * delta;
+  }
+  if ("ArrowRight" in keysDown) { // Player holding right
+    object.x += 50 * delta;
+  }
+}, hero);
 
-	// Throw the monster somewhere on the screen randomly
-	monster.x = 32 + (Math.random() * (canvas.width - 64));
-	monster.y = 32 + (Math.random() * (canvas.height - 64));
-};
+var destroyMonster = function(object, delta) {
+  // Are they touching?
+  if (
+    hero.x <= (object.x + 16)
+    && object.x <= (hero.x + 16)
+    && hero.y <= (object.y + 16)
+    && object.y <= (hero.y + 16)
+  ) {
+    ++monstersCaught;
+    object.x = 32 + (Math.random() * (canvas.canvas.width - 64));
+    object.y = 32 + (Math.random() * (canvas.canvas.height - 64));
+  }
+}
 
-// Update game objects
-var update = function (modifier) {
-    objectList.forEach(function(gameObject) {
-      if (38 in keysDown) { // Player holding up
-        hero.y -= hero.speed * modifier;
-      }
-      if (40 in keysDown) { // Player holding down
-        hero.y += hero.speed * modifier;
-      }
-      if (37 in keysDown) { // Player holding left
-        hero.x -= hero.speed * modifier;
-      }
-      if (39 in keysDown) { // Player holding right
-        hero.x += hero.speed * modifier;
-      }
-    })
-  
-      // Are they touching?
-      if (
-          hero.x <= (monster.x + 32)
-          && monster.x <= (hero.x + 32)
-          && hero.y <= (monster.y + 32)
-          && monster.y <= (hero.y + 32)
-      ) {
-          ++monstersCaught;
-          reset();
-      }
-  };
-  
-  // The main game loop
-  var main = function () {
-      var now = Date.now();
-      var delta = now - then;
-  
-      update(delta / 1000);
-      render();
-  
-      then = now;
-  
-      // Request to do this again ASAP
-      requestAnimationFrame(main);
-  };
-  
-  // Cross-browser support for requestAnimationFrame
-  var w = window;
-  requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;
-  
-  // Let's play this game!
-  var then = Date.now();
-  reset();
-  main();
+var destroyMonsterTrigger = new Trigger(destroyMonster, monster)
+var destroyMonsterTrigger = new Trigger(destroyMonster, monster2)
+
+// Let's play this game!
+main();
