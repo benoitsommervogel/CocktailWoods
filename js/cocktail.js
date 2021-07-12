@@ -3,11 +3,12 @@
 var cocanvas = null;
 
 class CocktailCanvas {
-  constructor(width, height, bgImage) {
+  constructor(width, height, bgImage, ratio) {
     this.canvas = document.createElement("canvas");
     this.ctx = this.canvas.getContext("2d");
-    this.canvas.width = width;
-    this.canvas.height = height;
+    this.canvas.width = width * ratio;
+    this.canvas.height = height * ratio;
+    this.ratio = ratio > 0 ? ratio : 1;
     document.body.appendChild(this.canvas);
     this.bgReady = false;
     this.bgImage = new Image();
@@ -20,10 +21,10 @@ class CocktailCanvas {
 
   render(params) {
     if (this.bgReady) {
-      this.ctx.drawImage(this.bgImage, 0, 0);
+      this.ctx.drawImage(this.bgImage, 0, 0, this.canvas.width, this.canvas.height);
     }
     spriteList.forEach(function (sprite) {
-      sprite.render(this.ctx);
+      sprite.render(this.ctx, this.ratio);
     }.bind(this))
   }
 }
@@ -44,14 +45,13 @@ class Sprite {
     this.image = new Image();
     this.image.onload = function () {
       this.ready = true;
-      console.log(this.ready);
     };
     this.image.src = spriteSrc;
     spriteList.push(this);
   }
 
-  render(ctx) {
-    ctx.drawImage(this.image, this.gameObject.x, this.gameObject.y);
+  render(ctx, ratio) {
+    ctx.drawImage(this.image, this.gameObject.x, this.gameObject.y, this.image.width * ratio, this.image.height * ratio);
   }
 }
 
