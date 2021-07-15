@@ -23,9 +23,9 @@ class CocktailCanvas {
     if (this.bgReady) {
       this.ctx.drawImage(this.bgImage, 0, 0, this.canvas.width, this.canvas.height);
     }
-    spriteList.forEach(function (sprite) {
-      sprite.render(this.ctx, this.ratio);
-    }.bind(this))
+    for (var key in spriteList) {
+      spriteList[key].render(this.ctx, this.ratio);
+    }
   }
 }
 
@@ -35,19 +35,20 @@ class Scene {
 }
 
 // Sprite
-var spriteList = []
+var spriteList = {};
+var maxSpriteId = 0;
 
 class Sprite {
   constructor(spriteSrc, gameObject) {
     this.ready = false;
+    this.id = maxSpriteId;
+    maxSpriteId += 1;
     this.gameObject = gameObject;
-    this.gameObject.addSprite(this);
     this.image = new Image();
     this.image.onload = function () {
       this.ready = true;
     };
     this.image.src = spriteSrc;
-    spriteList.push(this);
   }
 
   render(ctx, ratio) {
@@ -56,44 +57,62 @@ class Sprite {
 }
 
 // Game objects
-var objectList = [];
+var objectList = {};
+var maxObjectId = 0;
 
 class GameObject {
   constructor(posx, posy, opt) {
     this.x = posx;
     this.y = posy;
     this.opt = opt;
-    this.sprite = null;
+    this.current_sprite = null;
+    this.sprites = {};
     this.triggers = [];
-    objectList.push(this);
+    this.id = maxObjectId;
+    maxObjectId += 1;
+    objectList[this.id] = this;
   }
 
   destroy() {
-    delete spriteList[this.sprite]
-    this.triggers.forEach(function (trigger) {
-      delete triggerList[trigger]
-    })
-    delete objectList[this]
+    for (var key in this.triggers) {
+      delete triggerList[this.triggers[key].id];
+    }
+    for (var key in this.sprites) {
+      delete spriteList[this.sprites[key].id];
+    }
+    delete objectList[this.id];
   }
 
   addTrigger(trigger) {
     this.triggers.push(trigger);
   }
 
-  addSprite(sprite) {
-    this.sprite = sprite;
+  changeSprite(label) {
+    if (this.current_sprite != null) {
+      delete spriteList[this.current_sprite.id]
+    }
+    this.current_sprite = this.sprites[label];
+    spriteList[this.sprites[label].id] = this.sprites[label];
+  }
+
+  addSprite(filename, label) {
+    this.sprites[label] = new Sprite(filename, this);
+    this.changeSprite(label);
   }
 }
 
 // Trigger
-triggerList = []
+var triggerList = {};
+var maxtriggerId = 0;
 
 class Trigger {
   constructor(callback, object) {
     this.object = object;
     this.callback = callback;
     object.addTrigger(this);
-    triggerList.push(this);
+    this.id = maxtriggerId;
+    maxtriggerId += 1;
+    triggerList[this.id] = this;
   }
 
   callCallback(delta) {
@@ -117,9 +136,9 @@ var main = function () {
   var now = Date.now();
   var delta = now - then;
 
-  triggerList.forEach(function (trigger) {
-   trigger.callCallback(delta / 1000)
-  })
+  for (var key in triggerList) {
+    triggerList[key].callCallback(delta / 1000);
+  }
   if (cocanvas) {
     cocanvas.render();
   }
