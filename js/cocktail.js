@@ -65,7 +65,7 @@ class GameObject {
     this.x = posx;
     this.y = posy;
     this.opt = opt;
-    this.current_sprite = null;
+    this.current_sprite_id = null;
     this.sprites = {};
     this.triggers = [];
     this.id = maxObjectId;
@@ -88,10 +88,10 @@ class GameObject {
   }
 
   changeSprite(label) {
-    if (this.current_sprite != null) {
-      delete spriteList[this.current_sprite.id]
+    if (this.current_sprite_id != null) {
+      delete spriteList[this.current_sprite_id]
     }
-    this.current_sprite = this.sprites[label];
+    this.current_sprite_id = this.sprites[label].id;
     spriteList[this.sprites[label].id] = this.sprites[label];
   }
 

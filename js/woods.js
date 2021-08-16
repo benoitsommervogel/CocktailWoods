@@ -31,7 +31,6 @@ var moveCharacter = function(object, delta) {
   if (object.opt["left"] in keysDown) { // Player holding left
     object.opt["charge_left"] += delta;
   } else if (object.opt["charge_left"] > 0) {
-    object.changeSprite("idle");
     console.log(object.opt["charge_left"] + delta)
     object.opt["charge_left"] = 0;
     object.x -= 15 * ratio;
@@ -39,7 +38,6 @@ var moveCharacter = function(object, delta) {
   if (object.opt["right"] in keysDown) { // Player holding right
     object.opt["charge_right"] += delta
   } else if (object.opt["charge_right"] > 0) {
-    object.changeSprite("damage");
     console.log(object.opt["charge_right"] + delta)
     object.opt["charge_right"] = 0;
     object.x += 15 * ratio;
