@@ -7,40 +7,57 @@ var hero = new GameObject(60 * ratio, 20 * ratio,
   "charge_up": 0,
   "up": "ArrowUp",
   "left": "ArrowLeft",
-  "right": "ArrowRight"})
+  "right": "ArrowRight",
+  "down": "ArrowDown"})
 var hero2 = new GameObject(120 * ratio, 20 * ratio,
   {"charge_left": 0,
   "charge_right": 0,
   "charge_up": 0,
   "up": "z",
   "left": "a",
-  "right": "e"})
+  "right": "e",
+  "down": "s"})
 
 hero.addSprite("assets/images/hero.png", "idle");
 hero2.addSprite("assets/images/hero.png", "idle");
 hero.addSprite("assets/images/monster.png", "damage");
 hero2.addSprite("assets/images/monster.png", "damage");
 
+// var moveCharacter = function(object, delta) {
+//   if (object.opt["up"] in keysDown) { // Player holding up
+//     object.opt["charge_up"] += delta;
+//   } else if (object.opt["charge_up"] > 0) {
+//     console.log(object.opt["charge_up"] + delta)
+//     object.opt["charge_up"] = 0;
+//   }
+//   if (object.opt["left"] in keysDown) { // Player holding left
+//     object.opt["charge_left"] += delta;
+//   } else if (object.opt["charge_left"] > 0) {
+//     console.log(object.opt["charge_left"] + delta)
+//     object.opt["charge_left"] = 0;
+//     object.x -= 15 * ratio;
+//   }
+//   if (object.opt["right"] in keysDown) { // Player holding right
+//     object.opt["charge_right"] += delta
+//   } else if (object.opt["charge_right"] > 0) {
+//     console.log(object.opt["charge_right"] + delta)
+//     object.opt["charge_right"] = 0;
+//     object.x += 15 * ratio;
+//   }
+// }
+
 var moveCharacter = function(object, delta) {
   if (object.opt["up"] in keysDown) { // Player holding up
-    object.opt["charge_up"] += delta;
-  } else if (object.opt["charge_up"] > 0) {
-    console.log(object.opt["charge_up"] + delta)
-    object.opt["charge_up"] = 0;
+    object.y -= 2 * ratio;
+  }
+  if (object.opt["down"] in keysDown) { // Player holding up
+    object.y += 2 * ratio;
   }
   if (object.opt["left"] in keysDown) { // Player holding left
-    object.opt["charge_left"] += delta;
-  } else if (object.opt["charge_left"] > 0) {
-    console.log(object.opt["charge_left"] + delta)
-    object.opt["charge_left"] = 0;
-    object.x -= 15 * ratio;
+    object.x -= 2 * ratio;
   }
   if (object.opt["right"] in keysDown) { // Player holding right
-    object.opt["charge_right"] += delta
-  } else if (object.opt["charge_right"] > 0) {
-    console.log(object.opt["charge_right"] + delta)
-    object.opt["charge_right"] = 0;
-    object.x += 15 * ratio;
+    object.x += 2 * ratio;
   }
 }
 

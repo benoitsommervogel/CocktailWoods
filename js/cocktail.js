@@ -1,6 +1,8 @@
 // Create the game canvas
 
 var cocanvas = null;
+var MS_PER_UPDATE = 25;
+var lag = 0;
 
 class CocktailCanvas {
   constructor(width, height, bgImage, ratio) {
@@ -135,14 +137,19 @@ addEventListener("keyup", function (e) {
 var main = function () {
   var now = Date.now();
   var delta = now - then;
+  then = now;
+  lag += delta
 
   for (var key in triggerList) {
     triggerList[key].callCallback(delta / 1000);
   }
-  if (cocanvas) {
-    cocanvas.render();
+  while (lag >= MS_PER_UPDATE)
+  {
+    if (cocanvas) {
+      cocanvas.render();
+    }
+    lag -= MS_PER_UPDATE;
   }
-  then = now;
 
   // Request to do this again ASAP
   requestAnimationFrame(main);
