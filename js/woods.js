@@ -1,5 +1,6 @@
 var ratio = 2.5;
 var canvas = new CocktailCanvas(256, 176, "assets/images/background.png", ratio);
+var scene = new Scene();
 
 var hero = new GameObject(60 * ratio, 20 * ratio,
   {"charge_left": 0,
@@ -8,7 +9,7 @@ var hero = new GameObject(60 * ratio, 20 * ratio,
   "up": "ArrowUp",
   "left": "ArrowLeft",
   "right": "ArrowRight",
-  "down": "ArrowDown"})
+  "down": "ArrowDown"}, scene)
 var hero2 = new GameObject(120 * ratio, 20 * ratio,
   {"charge_left": 0,
   "charge_right": 0,
@@ -16,7 +17,7 @@ var hero2 = new GameObject(120 * ratio, 20 * ratio,
   "up": "z",
   "left": "a",
   "right": "e",
-  "down": "s"})
+  "down": "s"}, scene)
 
 hero.addSprite("assets/images/hero.png", "idle");
 hero2.addSprite("assets/images/hero.png", "idle");

@@ -1,6 +1,7 @@
 // Create the game canvas
 
 var cocanvas = null;
+var currentScene = null;
 var MS_PER_UPDATE = 25;
 var lag = 0;
 
@@ -25,19 +26,43 @@ class CocktailCanvas {
     if (this.bgReady) {
       this.ctx.drawImage(this.bgImage, 0, 0, this.canvas.width, this.canvas.height);
     }
-    for (var key in spriteList) {
-      spriteList[key].render(this.ctx, this.ratio);
+    for (var key in currentScene.spriteList) {
+      currentScene.spriteList[key].render(this.ctx, this.ratio);
     }
   }
 }
 
 // Game scene
 class Scene {
+  constructor() {
+    currentScene = this;
+    this.spriteList = {};
+    this.triggerList = {};
+  }
+
+  activate() {
+    currentScene = this;
+  }
+
+  addSprite(sprite) {
+    this.spriteList[sprite.id] = sprite;
+  }
+
+  addTrigger(trigger) {
+    this.triggerList[trigger.id] = trigger;
+  }
+
+  deleteSprite(spriteId) {
+    delete this.spriteList[spriteId]
+  }
+
+  deleteTrigger(triggerId) {
+    delete this.triggerList[triggerId]
+  }
 
 }
 
 // Sprite
-var spriteList = {};
 var maxSpriteId = 0;
 
 class Sprite {
@@ -63,7 +88,8 @@ var objectList = {};
 var maxObjectId = 0;
 
 class GameObject {
-  constructor(posx, posy, opt) {
+  constructor(posx, posy, opt, scene) {
+    this.scene = scene;
     this.x = posx;
     this.y = posy;
     this.opt = opt;
@@ -77,10 +103,10 @@ class GameObject {
 
   destroy() {
     for (var key in this.triggers) {
-      delete triggerList[this.triggers[key].id];
+      this.scene.deleteTrigger(this.triggers[key].id);
     }
     for (var key in this.sprites) {
-      delete spriteList[this.sprites[key].id];
+      this.scene.deleteSprite(this.sprites[key].id);
     }
     delete objectList[this.id];
   }
@@ -91,10 +117,10 @@ class GameObject {
 
   changeSprite(label) {
     if (this.current_sprite_id != null) {
-      delete spriteList[this.current_sprite_id]
+      this.scene.deleteSprite(this.current_sprite_id);
     }
     this.current_sprite_id = this.sprites[label].id;
-    spriteList[this.sprites[label].id] = this.sprites[label];
+    this.scene.addSprite(this.sprites[label]);
   }
 
   addSprite(filename, label) {
@@ -104,7 +130,6 @@ class GameObject {
 }
 
 // Trigger
-var triggerList = {};
 var maxtriggerId = 0;
 
 class Trigger {
@@ -114,7 +139,7 @@ class Trigger {
     object.addTrigger(this);
     this.id = maxtriggerId;
     maxtriggerId += 1;
-    triggerList[this.id] = this;
+    object.scene.addTrigger(this);
   }
 
   callCallback(delta) {
@@ -140,17 +165,18 @@ var main = function () {
   then = now;
   lag += delta
 
-  for (var key in triggerList) {
-    triggerList[key].callCallback(delta / 1000);
-  }
-  while (lag >= MS_PER_UPDATE)
-  {
-    if (cocanvas) {
-      cocanvas.render();
+  if (currentScene != null) {
+    for (var key in currentScene.triggerList) {
+      currentScene.triggerList[key].callCallback(delta / 1000);
     }
-    lag -= MS_PER_UPDATE;
+    while (lag >= MS_PER_UPDATE)
+    {
+      if (cocanvas) {
+        cocanvas.render();
+      }
+      lag -= MS_PER_UPDATE;
+    }
   }
-
   // Request to do this again ASAP
   requestAnimationFrame(main);
 };
