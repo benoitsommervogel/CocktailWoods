@@ -149,13 +149,18 @@ class Trigger {
 
 // Handle keyboard controls
 var keysDown = {};
+var keysPressed = {};
+var keysReleased = {};
 
 addEventListener("keydown", function (e) {
+  if (!(e.key in keysDown))
+    keysPressed[e.key] = true;
 	keysDown[e.key] = true;
 }, false);
 
 addEventListener("keyup", function (e) {
 	delete keysDown[e.key];
+  keysReleased[e.key] = true;
 }, false);
 
 // The main game loop
@@ -163,7 +168,7 @@ var main = function () {
   var now = Date.now();
   var delta = now - then;
   then = now;
-  lag += delta
+  lag += delta;
 
   if (currentScene != null) {
     for (var key in currentScene.triggerList) {
@@ -179,6 +184,8 @@ var main = function () {
   }
   // Request to do this again ASAP
   requestAnimationFrame(main);
+  keysPressed = {};
+  keysReleased = {};
 };
 var then = Date.now();
 // Cross-browser support for requestAnimationFrame

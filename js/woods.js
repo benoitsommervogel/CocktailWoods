@@ -1,6 +1,10 @@
 var ratio = 2.5;
 var canvas = new CocktailCanvas(256, 176, "assets/images/background.png", ratio);
-var scene = new Scene();
+var game_scene = new Scene();
+var pause_scene = new Scene();
+
+var general_controller_game = new GameObject(0, 0, {"norepeat": false}, game_scene)
+var general_controller_pause = new GameObject(0, 0, {"norepeat": false}, pause_scene)
 
 var hero = new GameObject(60 * ratio, 20 * ratio,
   {"charge_left": 0,
@@ -9,7 +13,7 @@ var hero = new GameObject(60 * ratio, 20 * ratio,
   "up": "ArrowUp",
   "left": "ArrowLeft",
   "right": "ArrowRight",
-  "down": "ArrowDown"}, scene)
+  "down": "ArrowDown"}, game_scene)
 var hero2 = new GameObject(120 * ratio, 20 * ratio,
   {"charge_left": 0,
   "charge_right": 0,
@@ -17,7 +21,7 @@ var hero2 = new GameObject(120 * ratio, 20 * ratio,
   "up": "z",
   "left": "a",
   "right": "e",
-  "down": "s"}, scene)
+  "down": "s"}, game_scene)
 
 hero.addSprite("assets/images/hero.png", "idle");
 hero2.addSprite("assets/images/hero.png", "idle");
@@ -62,23 +66,23 @@ var moveCharacter = function(object, delta) {
   }
 }
 
-// var destroyMonster = function(object, delta) {
-//   // Are they touching?
-//   if (
-//     hero.x <= (object.x + 16 * ratio)
-//     && object.x <= (hero.x + 16 * ratio)
-//     && hero.y <= (object.y + 16 * ratio)
-//     && object.y <= (hero.y + 16 * ratio)
-//   ) {
-//     ++monstersCaught;
-//     object.x = 32 * ratio + (Math.random() * (canvas.canvas.width - 64 * ratio));
-//     object.y = 20 * ratio;
-//   }
-// }
+var resume = function(object, delta) {
+  if ("p" in keysPressed) {
+    game_scene.activate();
+  }
+}
+
+var pause = function(object, delta) {
+  if ("p" in keysPressed) {
+    pause_scene.activate();
+  }
+}
 
 var moveHero = new Trigger(moveCharacter, hero);
 var moveMonster = new Trigger(moveCharacter, hero2);
-// var destroyMonsterTrigger = new Trigger(destroyMonster, hero2)
+var swapScene = new Trigger(pause, general_controller_game)
+var swapScene = new Trigger(resume, general_controller_pause)
+game_scene.activate();
 
 // Let's play this game!
 main();
