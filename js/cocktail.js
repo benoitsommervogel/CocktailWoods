@@ -5,6 +5,49 @@ var currentScene = null;
 var MS_PER_UPDATE = 25;
 var lag = 0;
 
+class ImageBuilder {
+  constructor(width, height, base, spriteList) {
+    this.canvas = document.createElement("canvas");
+    this.ctx = this.canvas.getContext("2d");
+    this.canvas.width = width;
+    this.canvas.height = height;
+    this.elementTotal = spriteList.length;
+    this.elementCount = 0;
+    this.base = new Image();
+    this.base.onload = function () {
+      this.ctx.drawImage(this.base, 0, 0, this.canvas.width, this.canvas.height);
+      this.constructBackground(spriteList)
+    }.bind(this);
+    this.base.src = base;
+  }
+
+  // expect a list of images with coordinates to add to the background ["spritepath", x, y]
+  constructBackground(spriteList) {
+    var addedElement = [];
+    for (var key in spriteList) {
+      var addedElement = new Image();
+      addedElement.key = key;
+      addedElement.constructor = this;
+      addedElement.onload = function () {
+        this.constructor.ctx.drawImage(this, spriteList[this.key]["x"], spriteList[this.key]["y"], this.width, this.height);
+        this.constructor.elementCount++;
+      }
+      addedElement.src = spriteList[key]["spritePath"];
+    }
+  }
+
+  ready() {
+    if (this.elementCount >= this.elementTotal) {
+      return true;
+    }
+    return false;
+  }
+
+  getImage() {
+    return this.canvas;
+  }
+}
+
 class CocktailCanvas {
   constructor(width, height, bgImage, ratio) {
     this.canvas = document.createElement("canvas");
@@ -20,6 +63,12 @@ class CocktailCanvas {
     }.bind(this);
     this.bgImage.src = bgImage;
     cocanvas = this;
+  }
+
+  setCanvasBackground(canvasImage) {
+    this.canvas.width = canvasImage.width * this.ratio;
+    this.canvas.height = canvasImage.height * this.ratio;
+    this.bgImage = canvasImage
   }
 
   render(params) {

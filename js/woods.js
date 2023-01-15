@@ -1,55 +1,53 @@
 var ratio = 2.5;
-var canvas = new CocktailCanvas(256, 176, "assets/images/background.png", ratio);
 var game_scene = new Scene();
 var pause_scene = new Scene();
 
-var general_controller_game = new GameObject(0, 0, {"norepeat": false}, game_scene)
-var general_controller_pause = new GameObject(0, 0, {"norepeat": false}, pause_scene)
+var general_controller_game = new GameObject(0, 0, {"norepeat": false}, game_scene);
+var general_controller_pause = new GameObject(0, 0, {"norepeat": false}, pause_scene);
+var canvas = new CocktailCanvas(96 * ratio, 96 * ratio, "assets/images/floor.png", ratio);
+
+var map = [
+  [1, 1, 1, 1, 1, 1],
+  [1, 0, 0, 0, 0, 1],
+  [1, 0, 1, 1, 0, 1],
+  [1, 0, 1, 1, 0, 1],
+  [1, 0, 0, 0, 0, 1],
+  [1, 0, 1, 1, 1, 1],
+  [1, 0, 0, 0, 0, 1],
+  [1, 1, 1, 0, 0, 1],
+  [1, 0, 0, 0, 0, 1],
+  [1, 1, 1, 0, 1, 1],
+  [1, 0, 0, 0, 0, 1],
+  [1, 1, 1, 1, 1, 1],
+];
+
+// var map = [
+//   [0, 0, 0, 0, 0, 0, 0, 0],
+//   [0, 0, 0, 0, 0, 0, 0, 0],
+//   [0, 0, 0, 0, 0, 0, 0, 0],
+//   [0, 0, 0, 0, 0, 0, 0, 0],
+// ];
+
+var mapImage = [];
+for (let i = 0; i < map.length; i++) {
+  for (let j = 0; j < map[i].length; j++) {
+    if (map[i][j] == 1) {
+      mapImage.push({"spritePath": "assets/images/wall.png", "x": j * 16, "y": i * 16});
+    }
+  }
+}
+
+var builder = new ImageBuilder(map[0].length * 16, map.length * 16, "assets/images/floor.png", mapImage);
+var loader = new GameObject(0, 0, {"norepeat": false}, game_scene);
 
 var hero = new GameObject(60 * ratio, 20 * ratio,
-  {"charge_left": 0,
-  "charge_right": 0,
-  "charge_up": 0,
+  {
   "up": "ArrowUp",
   "left": "ArrowLeft",
   "right": "ArrowRight",
   "down": "ArrowDown"}, game_scene)
-var hero2 = new GameObject(120 * ratio, 20 * ratio,
-  {"charge_left": 0,
-  "charge_right": 0,
-  "charge_up": 0,
-  "up": "z",
-  "left": "a",
-  "right": "e",
-  "down": "s"}, game_scene)
 
 hero.addSprite("assets/images/hero.png", "idle");
-hero2.addSprite("assets/images/hero.png", "idle");
-hero.addSprite("assets/images/monster.png", "damage");
-hero2.addSprite("assets/images/monster.png", "damage");
-
-// var moveCharacter = function(object, delta) {
-//   if (object.opt["up"] in keysDown) { // Player holding up
-//     object.opt["charge_up"] += delta;
-//   } else if (object.opt["charge_up"] > 0) {
-//     console.log(object.opt["charge_up"] + delta)
-//     object.opt["charge_up"] = 0;
-//   }
-//   if (object.opt["left"] in keysDown) { // Player holding left
-//     object.opt["charge_left"] += delta;
-//   } else if (object.opt["charge_left"] > 0) {
-//     console.log(object.opt["charge_left"] + delta)
-//     object.opt["charge_left"] = 0;
-//     object.x -= 15 * ratio;
-//   }
-//   if (object.opt["right"] in keysDown) { // Player holding right
-//     object.opt["charge_right"] += delta
-//   } else if (object.opt["charge_right"] > 0) {
-//     console.log(object.opt["charge_right"] + delta)
-//     object.opt["charge_right"] = 0;
-//     object.x += 15 * ratio;
-//   }
-// }
 
 var moveCharacter = function(object, delta) {
   if (object.opt["up"] in keysDown) { // Player holding up
@@ -78,10 +76,17 @@ var pause = function(object, delta) {
   }
 }
 
+var loadImage = function(object, delta) {
+  if (builder.ready()) {
+    canvas.setCanvasBackground(builder.getImage());
+    object.destroy();
+  }
+}
+
 var moveHero = new Trigger(moveCharacter, hero);
-var moveMonster = new Trigger(moveCharacter, hero2);
 var swapScene = new Trigger(pause, general_controller_game)
-var swapScene = new Trigger(resume, general_controller_pause)
+var swapScene2 = new Trigger(resume, general_controller_pause)
+var load = new Trigger(loadImage, loader)
 game_scene.activate();
 
 // Let's play this game!
