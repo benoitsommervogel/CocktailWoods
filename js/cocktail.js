@@ -1,6 +1,8 @@
 // Create the game canvas
 
-var cocanvas = null;
+var cocanvas = document.createElement("canvas");
+var coctx = cocanvas.getContext("2d");
+document.body.appendChild(cocanvas);
 var currentScene = null;
 var MS_PER_UPDATE = 25;
 var lag = 0;
@@ -50,48 +52,50 @@ class ImageBuilder {
 }
 
 class CocktailCanvas {
+
+
+}
+
+// Game scene
+class Scene {
   constructor(width, height, bg_image, ratio) {
+    currentScene = this;
+    this.sprite_list = {};
+    this.triggerList = {};
     this.canvas = document.createElement("canvas");
     this.ctx = this.canvas.getContext("2d");
     this.canvas.width = width * ratio;
     this.canvas.height = height * ratio;
     this.ratio = ratio > 0 ? ratio : 1;
-    document.body.appendChild(this.canvas);
     this.bg_ready = false;
     this.bg_image = new Image();
     this.bg_image.onload = function () {
       this.bg_ready = true;
     }.bind(this);
     this.bg_image.src = bg_image;
-    cocanvas = this;
+  }
+
+  activate() {
+    currentScene = this;
+    cocanvas.width = this.canvas.width;
+    cocanvas.height = this.canvas.height;
+  }
+
+  render(params) {
+    if (this.bg_ready) {
+      coctx.drawImage(this.bg_image, 0, 0, this.canvas.width, this.canvas.height);
+    }
+    for (var key in currentScene.sprite_list) {
+      this.sprite_list[key].render(coctx, this.ratio);
+    }
   }
 
   setCanvasBackground(canvas_image) {
     this.canvas.width = canvas_image.width * this.ratio;
     this.canvas.height = canvas_image.height * this.ratio;
     this.bg_image = canvas_image
-  }
-
-  render(params) {
-    if (this.bg_ready) {
-      this.ctx.drawImage(this.bg_image, 0, 0, this.canvas.width, this.canvas.height);
-    }
-    for (var key in currentScene.sprite_list) {
-      currentScene.sprite_list[key].render(this.ctx, this.ratio);
-    }
-  }
-}
-
-// Game scene
-class Scene {
-  constructor() {
-    currentScene = this;
-    this.sprite_list = {};
-    this.triggerList = {};
-  }
-
-  activate() {
-    currentScene = this;
+    cocanvas.width = this.canvas.width;
+    cocanvas.height = this.canvas.height;
   }
 
   addSprite(sprite) {
@@ -226,8 +230,8 @@ var main = function () {
     }
     while (lag >= MS_PER_UPDATE)
     {
-      if (cocanvas) {
-        cocanvas.render();
+      if (currentScene) {
+        currentScene.render();
       }
       lag -= MS_PER_UPDATE;
     }

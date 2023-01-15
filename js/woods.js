@@ -1,10 +1,9 @@
 var ratio = 2.5;
-var game_scene = new Scene();
-var pause_scene = new Scene();
+var game_scene = new Scene(96 * ratio, 96 * ratio, "assets/images/floor.png", ratio);
+var pause_scene = new Scene(96 * ratio, 96 * ratio, "assets/images/floor.png", ratio);
 
 var general_controller_game = new GameObject(0, 0, {"norepeat": false}, game_scene);
 var general_controller_pause = new GameObject(0, 0, {"norepeat": false}, pause_scene);
-var canvas = new CocktailCanvas(96 * ratio, 96 * ratio, "assets/images/floor.png", ratio);
 
 var hero = new GameObject(60 * ratio, 20 * ratio,
   {
@@ -58,19 +57,35 @@ var map = [
   [1, 1, 1, 1, 1, 1],
 ];
 
-var mapImage = [];
-for (let i = 0; i < map.length; i++) {
-  for (let j = 0; j < map[i].length; j++) {
-    if (map[i][j] == 1) {
-      mapImage.push({"spritePath": "assets/images/wall.png", "x": j * 16, "y": i * 16});
+var pausemap = [
+  [1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1],
+  [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0],
+  [1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1],
+  [1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0],
+  [1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1],
+];
+
+function convertMap(map) {
+  var mapImage = [];
+  for (let i = 0; i < map.length; i++) {
+    for (let j = 0; j < map[i].length; j++) {
+      if (map[i][j] == 1) {
+        mapImage.push({"spritePath": "assets/images/wall.png", "x": j * 16, "y": i * 16});
+      }
     }
   }
+  return mapImage
 }
 
-var builder = new ImageBuilder(map[0].length * 16, map.length * 16, "assets/images/floor.png", mapImage);
+var builder = new ImageBuilder(map[0].length * 16, map.length * 16, "assets/images/floor.png", convertMap(map));
 builder.onReady(function(image) {
-  canvas.setCanvasBackground(image);
+  game_scene.setCanvasBackground(image);
 }, game_scene)
+
+var pausebuilder = new ImageBuilder(pausemap[0].length * 16, pausemap.length * 16, "assets/images/floor.png", convertMap(pausemap));
+pausebuilder.onReady(function(image) {
+  pause_scene.setCanvasBackground(image);
+}, pause_scene)
 
 
 var moveHero = new Trigger(moveCharacter, hero);
